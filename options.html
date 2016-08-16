@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>C&amp;S Overlay Options</title>
+	<!-- <link rel="stylesheet" href="options/css/foundation.min.css"> -->
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+	<link rel="stylesheet" href="options/css/options.css">
+	<script src="constructors.js"></script>
+	<script src="jquery.js"></script>
+	<script src="bootstrap.js"></script>
+	<script src="options/js/members.js"></script>
+	<script src="options/js/committeesList.js"></script>
+</head>
+
+<body>
+	<div class="container">
+	<a href="#" id="extensionsLink">Extensions</a>
+	<h1 class="text-center">C&amp;S Connect Overlay</h1>
+	<h4>
+		You can use this page to do the following:
+	</h4>
+	<ul>
+		<li><b>Create a list of just your committees</b> which will appear at the top of some large dropdowns on C&amp;S Connect</li>
+		<li><b>Modify first consideration ballot defaults</b> in the explanation field</li>
+		<li><b>Modify the appearance of title rows</b></li>
+		<li><b>Modify the appearance of input fields</b></li>
+		<li><b>Update User Info</b> used for auto creating forms for you</li>
+		<li><b>Parse Minutes</b> and create a table list of actions and motions</li>
+		<li><b>Create committee groups for ballots</b></li>
+	</ul>
+	<div class="row">
+		<span class="btn btn-default col-md-2 active fadeIn" data-target="#shortList" data-active=false>Committee Short List</span>
+		<span class="btn btn-default col-md-2 active fadeIn" data-target="#committeegroups" data-active=false>Committee Groups</span>
+		<span class="btn btn-default col-md-2 active fadeIn" data-target="#committeeListDiv" data-active=false>Full Committee List</span>
+		<span class="btn btn-default col-md-2 active fadeIn" data-target="#inputDefaults" data-active=false>Input Defaults</span>
+		<span class="btn btn-default col-md-2 active fadeIn" data-target="#styles" data-active=false>Style Options</span>
+		<span class="btn btn-default col-md-2 active fadeIn" data-target="#userInfo" data-active=false>User Info</span>
+		<span class="btn btn-default col-md-2 active fadeIn" data-target="#modifications" data-active=false>Summary of Modifications</span>
+		<span class="btn btn-default col-md-4 active fadeIn" data-target="#parseMinutes" data-active=false>Parse Minutes for Actions &amp; Motions</span>
+		
+	</div>
+	<!-- <h4 data-toggle="collapse" data-target="#pdhGen" data-active=false>Generate PDH Certificate <span class="caret"></span></h4> -->
+	<div id="committeegroups" class="collapse">
+		<button id="addcommitteegroup" class="btn btn-default"><span class="glyphicon glyphicon-plus-sign"></span> New Group</button>
+	</div>
+
+	<div id="shortList" class="collapse">
+		<p class="tip">
+			The C&amp;S Connect fields for committee selection under the Staff Tab and VCC Tab will include this list at the top so you can find them more quickly.<br/><br/>
+			Press the Add button to create more inputs for committees<br/><br/>
+			Begin typing the committee name into the inputs and they will autocomplete. If you can't find your committee by typing the name, please check the full committee list provided on this page. You can copy and paste the name.
+		</p>
+		<button class="btn btn-default" id="addCommittee"><span class="glyphicon glyphicon-plus-sign"></span> Add Committee</button>
+		<button class="btn btn-primary" id="saveCommittees">Save</button>
+		<datalist id="allCommittees"></datalist>
+	</div>
+	<div id="inputDefaults" class="collapse">
+		<p>Component Ballot Description:</p>
+		<textarea id="componentballotdescription" rows=6 class="form-control"></textarea>
+		<button class="btn btn-primary" id="savecomponentballotdescription">Save</button>
+		<p>Component Ballot Explanation:</p>
+		<textarea id="componentballotexplanation" rows=6 class="form-control"></textarea>
+		<button class="btn btn-primary" id="savecomponentballotexplanation">Save</button>
+	</div>
+	<div id="styles" class="collapse">
+		<button id="clearStyleChanges" class="btn btn-default btn-xs">Clear All My Style Changes</button>
+		<div id="status"></div>
+		<div class="row no-pad">
+			<h3>Custom Design</h3>
+			<a href="http://www.w3schools.com/colors/colors_picker.asp" target="_blank">Color picker (W3Schools)</a>
+			<h4>Table Header:</h4>
+			<p class="form form-inline">
+				<span class="input-group">
+					<span class="input-group-addon"><label for="bgcolor-table">Background color:</label></span>
+					<input class="form-control" id="bgcolor-table" type="text" />
+				</span>
+				<span class="input-group">
+					<span class="input-group-addon"><label for="brcolor-table">Border color:</label></span>
+					<input class="form-control" id="brcolor-table" type="text" />
+				</span>
+			<p>
+			<p>
+				<button class="btn btn-primary" id="customStyleTable">Save</button>
+			</p>
+			<h4>Input</h4>
+			<p class="form form-inline">
+				<span class="input-group">
+					<span class="input-group-addon"><label for="bgcolor-input">Background color:</label></span>
+					<input class="form-control" id="bgcolor-input" type="text" />
+				</span>
+				<span class="input-group">
+					<span class="input-group-addon"><label for="brcolor-input">Border color:</label></span>
+					<input class="form-control" id="brcolor-input" type="text" />
+				</span>
+				<span class="input-group">
+					<span class="input-group-addon"><label for="txtcolor-input">Text color:</label></span>
+					<input class="form-control" id="txtcolor-input" type="text" />
+				</span>
+				<label for="3dfx">3D</label>
+				<input id="3dfx" type="checkbox" style="height:26px; width:26px; vertical-align:middle;">
+			<p>
+			<p>
+				<button class="btn btn-primary" id="customStyleInput">Save</button>
+			</p>
+		</div>
+
+		<h3>Table Heading Style:</h3>
+		<div class="row no-pad">
+			<div class="headStyleOption" style="background-color:white; border:1px solid white" data-bgColor="white" data-brColor="white"></div>
+			<div class="headStyleOption" style="background-color:white; border:1px solid black" data-bgColor="white" data-brColor="black"></div>
+			<div class="headStyleOption" style="background-color:#dedede; border:1px solid black" data-bgColor="#dedede" data-brColor="black"></div>
+			<div class="headStyleOption" style="background-color:#d9edf7; border:1px solid #bce8f1" data-bgColor="#d9edf7" data-brColor="#bce8f1"></div>
+			<div class="headStyleOption" style="background-color:#ffffcc; border:1px solid #ffff80" data-bgColor="#ffffcc" data-brColor="#ffff80"></div>
+			<div class="headStyleOption" style="background-color:#ffd8cc; border:1px solid #ff9d80" data-bgColor="#ffd8cc" data-brColor="#ff9d80"></div>
+			<div class="headStyleOption" style="background-color:#ffd9b3; border:1px solid #ffb366" data-bgColor="#ffd9b3" data-brColor="#ffb366"></div>
+			<div class="headStyleOption" style="background-color:#d1e0d6; border:1px solid #a4c1ae;" data-bgColor="#d1e0d6" data-brColor="#a4c1ae"></div>
+			<div class="headStyleOption" style="background-color:#d6ccc2; border:1px solid #8a745b;" data-bgColor="#d6ccc2" data-brColor="#8a745b"></div>
+		</div>
+		<table class="table table-condensed">
+			<thead>
+				<tr><th id="testTH">This is a table header</th></tr>
+			</thead>
+			<tbody>
+				<tr><td>Table row</td></tr>
+				<tr><td>Table row</td></tr>
+				<tr><td>Table row</td></tr>
+			</tbody>
+		</table>
+		<h3>Input Style:</h3>
+		<div class="row no-pad">
+			<div class="inpStyleOption" style="background-color:white; border:1px solid #dedede" data-bgColor="white" data-brColor="#dedede"></div>
+			<div class="inpStyleOption" style="background-color:white; border:1px solid black" data-bgColor="white" data-brColor="black"></div>
+			<div class="inpStyleOption" style="background-color:#dedede; border:1px solid black" data-bgColor="#dedede" data-brColor="black"></div>
+			<div class="inpStyleOption" style="background-color:#d9edf7; border:1px solid #bce8f1" data-bgColor="#d9edf7" data-brColor="#bce8f1"></div>
+			<div class="inpStyleOption" style="background-color:#ffffcc; border:1px solid #ffff80" data-bgColor="#ffffcc" data-brColor="#ffff80"></div>
+			<div class="inpStyleOption" style="background-color:#ffd8cc; border:1px solid #ff9d80" data-bgColor="#ffd8cc" data-brColor="#ff9d80"></div>
+			<div class="inpStyleOption" style="background-color:#ffd9b3; border:1px solid #ffb366" data-bgColor="#ffd9b3" data-brColor="#ffb366"></div>
+			<div class="inpStyleOption" style="background-color:#d1e0d6; border:1px solid #a4c1ae;" data-bgColor="#d1e0d6" data-brColor="#a4c1ae"></div>
+			<div class="inpStyleOption" style="background-color:#d6ccc2; border:1px solid #8a745b;" data-bgColor="#d6ccc2" data-brColor="#8a745b"></div>
+		</div>
+		<div>
+			<div class="row" data-bgColor="white" data-brColor="#dedede">
+				<div class="col-md-6">
+					<input type="text" id="inpStyle" class="form-control" placeholder="These inputs are just for demo" />
+				</div>
+				<div class="col-md-6">
+					<select class="form-control" id="selStyle" size="6"></select>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="userInfo" class="collapse">
+		<p class="tip">
+			When this information is provided, interpretation records will include a button at the top. Clicking that button will create a formal issuance letter you can print or copy.
+		</p>
+		<div class="form form-inline">
+			<p><span class="input-group">
+				<span class="input-group-addon"><label for="firstName">First Name:</label></span>
+				<input class="form-control" id="firstName" type="text" />
+			</span>
+			<span class="input-group">
+				<span class="input-group-addon"><label for="lastName">Last Name:</label></span>
+				<input class="form-control" id="lastName" type="text" />
+			</span></p>
+			<p><span class="input-group">
+				<span class="input-group-addon"><label for="workPhone">Work Phone:</label></span>
+				<input class="form-control" id="workPhone" type="text" />
+			</span>
+			<span class="input-group">
+				<span class="input-group-addon"><label for="workEmail">Work Email:</label></span>
+				<input class="form-control" id="workEmail" type="text" />
+			</span></p>
+		</div>
+		<button id="saveUserInfo" class="btn btn-primary">Save</button>
+	</div>
+	<div id="parseMinutes" class="collapse">
+		<p class="tip">
+			Directly copy your entire meeting Minutes front matter (press Ctrl+A then Ctrl+C) from a Microsoft Word file to the text area below:
+		</p>
+		<p class="tip">
+			<p class="tip">
+			This tool requires that you format your Minutes with each Action or Motion item on a separate line<!-- , and using this format:<br/>
+			Action: Staff Secretary will Complete an action<br/>
+			      ^^               ^^^^^^ " will " is important
+			      ": " is important -->
+			</p>
+			<div id="ActsandMots" style="width:600px;"></div>
+			<button class="btn btn-primary" id="MinsBtn">Get Actions &amp; Minutes</button>
+			<div class="form form-inline">
+				<span class="input-group">
+					<span class="input-group-addon"><label for="delimiter">Delimiter:</label></span>
+					<input type="text" id="delimiter" value=": " class="form-control" style="width:60px" />
+				</span>
+				<span class="tip">(Used for separating the Motion or Action label from the content)</span>
+				<br/>
+				<span class="input-group">
+					<span class="input-group-addon"><label for="actiondelimiter">Action Delimiter:</label></span>
+					<input type="text" id="actiondelimiter" value=" will " class="form-control" style="width:60px" />
+				</span>
+				<span class="tip">(Used for separating the person's name from the action)</span>
+				<br/>
+				<span class="input-group">
+					<span class="input-group-addon"><label for="motionkey">Motion Keyword:</label></span>
+					<input type="text" id="motionkey" value="Motion:" class="form-control" style="width:100px" />
+				</span>
+				<span class="tip">(If you don't use "Motion:" in your Minutes, suggest using "vote")</span>
+			</div>
+
+			<textarea id="Minutes" class="form-control" rows=100>
+This is a test
+Action: The Staff Secretary will do something very important before the next meeting
+THIS IS A TITLE
+Motion: The committee agrees for the Staff Secretary to do something important
+Action: The Staff Secretary will do something else that is slightly less important
+Another title
+Motion: The committee voted to approve a motion
+Some notes which will undoubtedly cause a big commotion later
+Action: Someone else will do something else
+Action: A third guy will do some more research on an item
+Action: The Staff Secretary will do a third thing
+			</textarea>
+		</p>
+	</div>
+	<div id="committeeListDiv" class="collapse">
+		<p class="tip">
+			This is for reference only.
+		</p>
+		<ul id="committeeList"></ul>
+	</div>
+	<div id="modifications" class="collapse">
+		
+	</div>
+	</div>
+	<footer></footer>
+	<script src="options/js/init.js"></script>
+	<script src="options/js/options.js"></script>
+</body>
+
+</html>

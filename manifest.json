@@ -1,0 +1,67 @@
+{
+  "name": "C&S Connect Overlay",
+  "description": "Helps make C&S Connect more staff-friendly",
+  "version": "3.6",
+
+  "author":"Richard Lucas",
+
+  "permissions": [
+    "storage",
+    "cookies",
+    "tabs",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "options_page":"options.html",
+  "icons": {
+    "32":"img/icon32.png",
+    "48":"img/icon.png",
+    "128":"img/icon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://cstools.asme.org/csconnect/*"],
+      "css":["bootstrap.css"],
+      "js": [
+        "jquery.js",
+        "jqueryUI.js",
+        "constructors.js",
+        "functions/pageIdentification.js",
+        "functions/formatRecordSearchResults.js",
+        "functions/formatOpenBallots.js",
+        "functions/formatNewRecirculationBallot.js",
+        "functions/formatViewComponentRecord.js",
+        "functions/formatHomePage.js",
+        "functions/formatCommitteePage.js",
+        "functions/formatComponentBallotClosure.js",
+        "functions/formatMemberBallotClosure.js",
+        "functions/formatNewComponentBallot.js",
+        "functions/formatNewMemberBallot.js",
+        "functions/generalCSSChanges.js",
+        "functions/viewInterp.js",
+        "functions/formatUpdateComponentRecord.js",
+        "functions/formatViewEntireDocBallot.js",
+        "functions/formatUpdateInterpretationRecord.js",
+        "functions/formatUpdateInterpretationBallot.js",
+        "functions/formatNewEntireDocumentBallot.js",
+        "functions/replaceNavBar.js",
+        "functions/formatNewBSR8.js",
+        "options/js/committeesList.js",
+        "script.js"
+      ],
+      "json": [
+        "functions/titles.json"
+      ]
+    }
+  ],
+  "web_accessible_resources":[
+    "interps.footer.png",
+    "options.html",
+    "functions/titles.json"
+  ],
+  "browser_action": {
+    "default_title": "Improve C&S Connect",
+      "default_popup": "popup.html"
+  },
+  "manifest_version": 2
+}
