@@ -1,6 +1,6 @@
 function formatOpenBallots() {
 
-	  window.ballotsTable = document.querySelector(".HomePage");
+	  var ballotsTable = document.querySelector(".HomePage");
 	  var labelType = {
 			"Membership":"label label-danger",
 			"Component":"label label-primary",

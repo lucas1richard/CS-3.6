@@ -1,136 +1,69 @@
-function pageIdentification() {
-	if(document.querySelector(".pagehdg")) {
-		var pagehdg = document.querySelector(".pagehdg");
-		if(pagehdg.innerText.search("Recirculate Component") != -1) {
-			formatNewRecirculationBallot();
-			console.log("formatNewRecirculationBallot()");
-			return;
-		}
-		if(pagehdg.innerText.search("Update Component Ballot") != -1) {
-			formatComponentBallotClosure();
-			return;
-		}
-		if(pagehdg.innerText.search("Ballots") != -1) {
-			formatSearchBallots();
-			return;
-		}
-		if(pagehdg.innerText.search("Update Membership Ballot") != -1) {
-			formatMemberBallotClosure();
-			return;
-		}
-		if(pagehdg.innerText.search("New Membership Ballot") != -1) {
-			formatNewMemberBallot();
-			return;
-		}
-		if(pagehdg.innerText.search("New Component Ballot") != -1) {
-			formatNewComponentBallot();
-			return;
-		}
-		if(pagehdg.innerText.search("New Entire Document Ballot") != -1) {
-			formatNewEntireDocumentBallot();
-			return;
-		}
-		if(pagehdg.innerText.search("Update Component Record") != -1) {
-			formatUpdateComponentRecord();
-			return;
-		}
-		if(pagehdg.innerText.search("New Component Record") != -1) {
-			formatNewComponentRecord();
-			return;
-		}
-		if(pagehdg.innerText.search("View Component Ballot") != -1) {
-			formatViewComponentBallot();
-			return;
-		}
-		if(pagehdg.innerText.search("View Component Record") != -1) {
-			formatViewComponentRecord();
-			return;
-		}
-		if(pagehdg.innerText.search("View Membership Ballot") != -1) {
-			formatViewMemberBallot();
-			return;
-		}
-		if(pagehdg.innerText.search("View Entire Document Ballot") != -1) {
-			formatViewEntireDocBallot();
-			return;
-		}
-		if(pagehdg.innerText.search("New BSR-8") != -1) {
-			formatNewBSR8();
-			return;
-		}
-		if(pagehdg.innerText.search("New Entire Document Record") != -1) {
-			formatNewEntireDocumentRecord();
-			return;
-		}
-		if(pagehdg.innerText.search("View Entire Document Record") != -1) {
-			formatViewEntireDocumentRecord();
-			return;
-		}
-		if(pagehdg.innerText.search("Update Interpretations Record") != -1) {
-			formatUpdateInterpretationRecord();
-			return;
-		}
-		if(pagehdg.innerText.search("Update Interpretations Ballot") != -1) {
-			formatUpdateInterpretationBallot();
-			return;
-		}
-		if(pagehdg.innerText.search("Update Board Procedural") != -1) {
-			console.log("Update Board Procedural Ballot page");
-			return;
-		}
-		if(pagehdg.innerText.search("Record Search Results") != -1) {
-			formatRecordSearchResults();
-			return;
-		}
-		if(pagehdg.innerText.search("Advanced Record Search") != -1) {
-			formatAdvancedRecordSearch();
-			return;
-		}
-	}
-	if(window.location.href.search("OpenBallots") != -1) { 
-		formatOpenBallots(); 
-		return; 
-	}
-	if(window.location.href.search("ContactInformation") != -1) {
-		formatHomePage();
-		return;
-	}
-	if(window.location.href.search("SummaryofNegatives") != -1) { console.log("Negatives & Responses"); return; }
-	if(window.location.href.search("ProjectManagerRecords") != -1) { console.log("My Items"); return; }
-	if(window.location.href.search("CustomTracking") != -1) { console.log("Custom Tracking"); return; }
-	if(window.location.href.search("AnnouncementFormID=1") != -1) { console.log("News"); return; }
-	if(window.location.href.search("AnnouncementFormID=2") != -1) { console.log("Help page"); return; }
-	if(window.location.href.search("Committee=") != -1) {
-		formatCommitteePage();
-		console.log("format committee page");
-		return;
-	}
-	if(window.location.href.search("vcc.cfm") != -1) {
-		formatVCC(); 
-		return;
-	}
-	if(window.location.href.search("ANSISubmittals") != -1) {console.log("ANSI"); return;}
-	if(window.location.href.search("Staff") != -1) {
-		formatStaff(); 
-		return;
-	}
-	if(window.location.href.search("reports.cfm") != -1) {console.log("Reports"); return;}
-	if(window.location.href.search("AS11") != -1) {
-		formatAS11(); 
-		return;
-	}
-	
-	if(window.location.href.search("Search") != -1) {
-		if(window.location.href.search("SendEmail") != -1) {
-			createEmailList();
-		}
-		if(document.querySelector(".pagehdg")){
-			if(document.querySelector(".pagehdg").innerText.search("View Interpretations") != -1) {
-				viewInterp();
-				return;
-			}
-		}
-		formatSearch(); 
-		return;
-	}
-}
+(function() {
+  overlay
+    .set("pageIdentification", pageIdentification);
+
+  function pageIdentification() {
+    if(document.querySelector(".pagehdg")) {
+      var pagehdg = document.querySelector(".pagehdg");
+
+      var pgToFunction = [
+        {term: "Advanced Record Search",        fn: overlay.formatAdvancedRecordSearch},
+        {term: "Ballots",                       fn: overlay.formatSearchBallots},
+        {term: "New Membership Ballot",         fn: formatNewMemberBallot},
+        {term: "New Component Ballot",          fn: formatNewComponentBallot},
+        {term: "New Entire Document Ballot",    fn: formatNewEntireDocumentBallot},
+        {term: "New Component Record",          fn: overlay.formatNewComponentRecord},
+        {term: "New BSR-8",                     fn: formatNewBSR8},
+        {term: "New Entire Document Record",    fn: overlay.formatNewEntireDocumentRecord},
+        {term: "Recirculate Component",         fn: formatNewRecirculationBallot},
+        {term: "Record Search Results",         fn: formatRecordSearchResults},
+        {term: "Set Membership Options",        fn: function() {appendShortList(document.querySelector("#Committee1"));}},
+        {term: "Update Component Ballot",       fn: overlay.formatComponentBallotClosure},
+        {term: "Update Component Record",       fn: formatUpdateComponentRecord},
+        {term: "Update Interpretations Record", fn: overlay.formatUpdateInterpretationRecord},
+        {term: "Update Interpretations Ballot", fn: overlay.formatUpdateInterpretationBallot},
+        {term: "Update Membership Ballot",      fn: overlay.formatMemberBallotClosure},
+        {term: "View Entire Document Record",   fn: overlay.formatViewEntireDocumentRecord},
+        {term: "View Component Ballot",         fn: overlay.formatViewComponentBallot},
+        {term: "View Component Record",         fn: overlay.formatViewComponentRecord},
+        {term: "View Entire Document Ballot",   fn: formatViewEntireDocBallot},
+        {term: "View Interpretations",          fn: overlay.viewInterp},
+        {term: "View Membership Ballot",        fn: overlay.formatViewMemberBallot},
+      ];
+
+      for(var i=0; i<pgToFunction.length; i++) {
+        if(pagehdg.innerText.search(pgToFunction[i].term) != -1) {
+          pgToFunction[i].fn();
+          return;
+        }
+      }
+      
+    } else {
+
+      var pgToFunction = [
+        {term: "OpenBallots",         fn: formatOpenBallots},
+        {term: "ContactInformation",  fn: overlay.formatHomePage},
+        {term: "Committee=",          fn: overlay.formatCommitteePage},
+        {term: "vcc.cfm",             fn: overlay.formatVCC},
+        {term: "Staff",               fn: overlay.formatStaff},
+        {term: "AS11",                fn: overlay.formatAS11},
+        {term: "Search",              fn: overlay.formatSearch}
+      ];
+
+      for(var i=0; i<pgToFunction.length; i++) {
+        if(window.location.href.search(pgToFunction[i].term) != -1) {
+          pgToFunction[i].fn();
+          return;
+        }
+      }
+
+      if(window.location.href.search("ANSISubmittals") != -1) { console.log("ANSI"); return;}
+      if(window.location.href.search("reports.cfm") != -1) { console.log("Reports"); return;}
+      if(window.location.href.search("SummaryofNegatives") != -1) { console.log("Negatives & Responses"); return; }
+      if(window.location.href.search("ProjectManagerRecords") != -1) { console.log("My Items"); return; }
+      if(window.location.href.search("CustomTracking") != -1) { console.log("Custom Tracking"); return; }
+      if(window.location.href.search("AnnouncementFormID=1") != -1) { console.log("News"); return; }
+      if(window.location.href.search("AnnouncementFormID=2") != -1) { console.log("Help page"); return; }
+    }
+  }
+})();

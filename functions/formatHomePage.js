@@ -1,9 +1,10 @@
-function formatHomePage() {
+(function() {
+  overlay
+    .set("formatHomePage", formatHomePage);
 
-  var HomepageTable = (function() {
+  function formatHomePage() {
 
     // Cache DOM
-    var MainTable = document.querySelector(".HomePage");
     var ContactTable = document.querySelectorAll(".HomePage")[1];
     var SurveyTable = document.querySelectorAll(".HomePage")[2];
 
@@ -11,97 +12,102 @@ function formatHomePage() {
     SurveyTable.parentNode.removeChild(SurveyTable);
     ContactTable.parentNode.removeChild(ContactTable);
 
-    MainTable.removeAttribute("border");
-    MainTable.setAttribute("class","HomePage table table-condensed");
-    MainTable.tBodies[0].removeChild(MainTable.rows[1]);
-    for(var i=0; i<MainTable.rows.length; i++) {
-      MainTable.rows[i].removeChild(MainTable.rows[i].children[1]);
-      MainTable.rows[i].mainIndex = i;
-      var committee = MainTable.rows[i].firstElementChild.innerText.split(" - ")[0];
+    // Handle reformatting the main table
+    var MainTable = (function() {
+      var table = document.querySelector(".HomePage");
+      table.removeAttribute("border");
+      table.setAttribute("class","HomePage table table-condensed");
+      table.tBodies[0].removeChild(table.rows[1]);
 
-      // Cache row TDs
-      var TDs = MainTable.rows[i].querySelectorAll("td");
+      for(var i=0; i<table.rows.length; i++) {
+        table.rows[i].removeChild(table.rows[i].children[1]);
+        table.rows[i].mainIndex = i;
+        var committee = table.rows[i].firstElementChild.innerText.split(" - ")[0];
 
-      if(TDs[4]) {
-        //MainTable.rows[i].draggable = true;
-        MainTable.rows[i].addEventListener("dragstart", function(ev) {
-          var row = this;
-          ev.dataTransfer.setData("obj", row.rowIndex);
-        });
-        MainTable.rows[i].addEventListener("dragover", function(ev) {
+        // Cache row TDs
+        var TDs = table.rows[i].querySelectorAll("td");
+
+        if(TDs[4]) {
+          table.rows[i].addEventListener("dragstart", function(ev) {
+            var row = this;
+            ev.dataTransfer.setData("obj", row.rowIndex);
+          });
+          table.rows[i].addEventListener("dragover", function(ev) {
             ev.preventDefault();
-        });
-        MainTable.rows[i].addEventListener("dragleave", function(ev) {
-              ev.target.removeAttribute("style");
-        });
+          });
+          table.rows[i].addEventListener("dragleave", function(ev) {
+            ev.target.removeAttribute("style");
+          });
+          table.rows[i].addEventListener("drop", function(ev) {
+            var self=this;
+            ev.preventDefault();
+            var obj = ev.dataTransfer.getData("obj");
+            if(ev.offsetY >= table.rows[obj].offsetHeight/2) {
+              insertAfter(table.rows[obj], self);
+            } else {
+              insertBefore(table.rows[obj], self);
+            }
+            chrome.storage.sync.set({"committeeIndexMap":indexMap()}, function() {});
+          });
 
-
-        MainTable.rows[i].addEventListener("drop", function(ev) {
-          var self=this;
-          ev.preventDefault();
-
-          var obj = ev.dataTransfer.getData("obj");
-          if(ev.offsetY >= MainTable.rows[obj].offsetHeight/2) {
-            insertAfter(MainTable.rows[obj],self);
+          // Move the link of to committee page to the first column, and remove the original column
+          if(TDs[4].firstElementChild) {
+            var button = TDs[4].firstElementChild;
+            button.value = committee;
+            table.rows[i].firstElementChild.removeChild(table.rows[i].firstElementChild.firstChild);
+            table.rows[i].firstElementChild.appendChild(button);
           } else {
-            insertBefore(MainTable.rows[obj],self);
+            table.rows[i].firstElementChild.innerText = committee;
           }
 
-          
-          chrome.storage.sync.set({"committeeIndexMap":indexMap()}, function() {});
-        });
-
-        if(TDs[4].firstElementChild) {
-          var button = TDs[4].firstElementChild;
-          button.value = committee;
-
-          MainTable.rows[i].firstElementChild.removeChild(MainTable.rows[i].firstElementChild.firstChild);
-          MainTable.rows[i].firstElementChild.appendChild(button);
+          // Remove the Expiration Year and rename buttons
+          table.rows[i].removeChild(TDs[4]);
+          if(TDs[1].firstElementChild) TDs[1].firstElementChild.value = "Ballots";
+          if(TDs[2].firstElementChild) TDs[2].firstElementChild.value = "Records";
         }
 
-        // Remove the Expiration Year
-        MainTable.rows[i].removeChild(TDs[4]);
-
-        if(TDs[1].firstElementChild) {
-          TDs[1].firstElementChild.value = "Ballots";
-        }
-        if(TDs[2].firstElementChild) {
-          TDs[2].firstElementChild.value = "Records";
+        if(table.rows[i].querySelectorAll("th")[4]) {
+          table.rows[i].removeChild(table.rows[i].querySelectorAll("th")[4]);
         }
       }
-      if(MainTable.rows[i].querySelectorAll("th")[4]) {
-        MainTable.rows[i].removeChild(MainTable.rows[i].querySelectorAll("th")[4]);
-      }
-    }
-    MainTable.style.maxWidth = "1000px";
-    MainTable.style.margin = "auto";
-    
-    
 
+      addCSS(table, {
+        background: "#fff",
+        boxShadow : "0px 0px 8px",
+        margin    : "auto",
+        maxWidth  : "1000px"
+      });
 
-    function insertAfter(newNode, referenceNode) {
-        referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
-    }
-    function insertBefore(newNode, referenceNode) {
-        referenceNode.parentNode.insertBefore(newNode, referenceNode);
-    }
+      return table;
+    })();
 
+    // Put the main table in a new div under the sorting label
+    var MainDiv = document.createElement("div");
+    var labelDiv = document.createElement("div");
+        labelDiv.className = "text-center";
+    var noticeDiv = document.createElement("div");
+        noticeDiv.className = "hidden";
+        noticeDiv.innerText = "You can change the order of the table rows by dragging and dropping them";
 
-    var sortOption = document.createElement("input");
-      sortOption.type = "checkbox";
-    var sortLabel = document.createElement("label");
-      sortLabel.innerText = "Sort Committees: ";
-      sortLabel.appendChild(sortOption);
+    MainDiv.appendChild(labelDiv);
+    MainDiv.appendChild(noticeDiv);
 
-      sortOption.addEventListener("change", function() {
+    var sortLabel = (function() {
+      var label = document.createElement("label");
+      var option = document.createElement("input");
+          label.innerText = "Sort Committees: ";
+          label.appendChild(option);
+          option.type = "checkbox";
+      option.addEventListener("change", function() {
         if(this.checked == true) {
+          noticeDiv.className = "text-center text-danger";
           for(var i=0; i<MainTable.rows.length; i++) {
             if(MainTable.rows[i].querySelectorAll("td")[4]) {
               MainTable.rows[i].draggable = true;
             }
           }
-          alert("You can change the order of the table rows by dragging and dropping them");
         } else {
+          noticeDiv.className = "hidden";
           for(var i=0; i<MainTable.rows.length; i++) {
             if(MainTable.rows[i].querySelectorAll("td")[4]) {
               MainTable.rows[i].removeAttribute("draggable");
@@ -109,51 +115,49 @@ function formatHomePage() {
           }
         }
       });
+      return label;
+    })();
 
-      insertBefore(sortLabel, MainTable);
 
-      function indexMap() {
-        var map = [];
+    labelDiv.appendChild(sortLabel);
+    insertBefore(MainDiv, MainTable);
 
-        for(var i=0; i<MainTable.rows.length; i++) {
-          if(MainTable.rows[i].querySelectorAll("td")[4]) {
-            map.push(MainTable.rows[i].mainIndex);
-          }
-        }
-        return map;
-      }
+    MainDiv.appendChild(MainTable);
 
-      // Reorder the MainTable
-      chrome.storage.sync.get({"committeeIndexMap":[]}, function(m) {
-        reOrder(m.committeeIndexMap);
-      });
-      function reOrder(map) {
-        if(map.length == 0) return;
-        var nmap = [];
-        for(var i=0; i<map.length; i++) {
-          nmap.push(MainTable.rows[map[i]]);
-        }
+    // Reorder the MainTable
+    chrome.storage.sync.get({"committeeIndexMap":[]}, function(m) {
+      reOrder(m.committeeIndexMap);
+    });
 
-        for (var i=MainTable.rows.length-1; i>0; i--){
-          MainTable.tBodies[0].removeChild(MainTable.rows[i]);
-        }
+    function indexMap() {
+      var map = [];
 
-        for(var i=0; i<map.length; i++) {
-          MainTable.tBodies[0].appendChild(nmap[i]);
+      for(var i=0; i<MainTable.rows.length; i++) {
+        if(MainTable.rows[i].querySelectorAll("td")[4]) {
+          map.push(MainTable.rows[i].mainIndex);
         }
       }
-  })();
-}
+      return map;
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-  
+    function insertAfter(newNode, referenceNode) {
+      referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+    }
+    function insertBefore(newNode, referenceNode) {
+        referenceNode.parentNode.insertBefore(newNode, referenceNode);
+    }
+    function reOrder(map) {
+      if(map.length == 0) return;
+      var nmap = [];
+      for(var i=0; i<map.length; i++) {
+        nmap.push(MainTable.rows[map[i]]);
+      }
+      for (var i=MainTable.rows.length-1; i>0; i--){
+        MainTable.tBodies[0].removeChild(MainTable.rows[i]);
+      }
+      for(var i=0; i<map.length; i++) {
+        MainTable.tBodies[0].appendChild(nmap[i]);
+      }
+    }
+  }
+})();

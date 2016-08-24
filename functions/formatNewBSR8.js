@@ -1,40 +1,42 @@
 function formatNewBSR8() {
 
-	var resultForm = document.querySelector("[name=ResultForm]");
-		resultForm.style.maxWidth = "1200px";
-		resultForm.style.margin = "auto";
-	var submitButton = document.querySelector("[name=SubmitButton]");
-	var designationTitleInput = document.querySelector("[name=DesignationTitle]");
-		designationTitleInput.parentNode.className += " form-inline text-left";
-	var associatedRecords = document.querySelector("#AssociatedRecordNumber");
-	var consensusCommittee = document.querySelector("[name=ConsensusCommittee]");
-	var supersedesInput = document.querySelector("[name=ANS]");
-		supersedesInput.type = "hidden";
+	var associatedRecords 			= document.querySelector("#AssociatedRecordNumber");
+	var consensusCommittee 			= document.querySelector("[name=ConsensusCommittee]");
+	var designationTitleInput 	= document.querySelector("[name=DesignationTitle]");
+	var projectIntent 					= document.querySelector("[name=ProjectIntentTypeID]");
+	var publicreviewdraftinput 	= document.querySelector("[name=PublicReviewDraft]");
+	var pubRevTable 						= document.querySelector("body > table:nth-child(2) > tbody > tr:nth-child(2) > td > form > table > tbody > tr > td > table:nth-child(7)");
+	var resultForm 							= document.querySelector("[name=ResultForm]");
+	var scopeInput 							= document.querySelector("[name=Contents]");
+	var submitButton 						= document.querySelector("[name=SubmitButton]");
+	var supersedesInput 				= document.querySelector("[name=ANS]");
+	var supersedesDes 					= document.createElement("input");
+	var supersedesYear 					= document.createElement("input");
+	var titleInput 							= document.querySelector("[name=Title]");
 
-	var supersedesDes = document.createElement("input");
-		supersedesDes.className = "form-control";
-		supersedesDes.type = "text";
-		supersedesDes.placeholder = "Designation";
-		supersedesDes.setAttribute("list","standard_titles");
+	//Formatting changes
+	resultForm.style.maxWidth = "1200px";
+	resultForm.style.margin = "auto";
+	designationTitleInput.parentNode.className += " form-inline text-left";
+	supersedesInput.type = "hidden";
 
-	var supersedesYear = document.createElement("input");
-		supersedesYear.className = "form-control";
-		supersedesYear.type = "text";
-		supersedesYear.placeholder = "Year";
+	supersedesDes.className = "form-control";
+	supersedesDes.type = "text";
+	supersedesDes.placeholder = "Designation";
+	supersedesDes.setAttribute("list","standard_titles");
 
-		supersedesInput.parentNode.className = "form-inline text-left";
-		supersedesInput.parentNode.appendChild(supersedesDes);
-		supersedesInput.parentNode.appendChild(supersedesYear);
+	supersedesYear.className = "form-control";
+	supersedesYear.type = "text";
+	supersedesYear.placeholder = "Year";
 
-	var titleInput = document.querySelector("[name=Title]");
-	var scopeInput = document.querySelector("[name=Contents]");
-	var publicreviewdraftinput = document.querySelector("[name=PublicReviewDraft]");
-	var projectIntent = document.querySelector("[name=ProjectIntentTypeID]");
-		projectIntent.value = "7";
+	supersedesInput.parentNode.className = "form-inline text-left";
+	supersedesInput.parentNode.appendChild(supersedesDes);
+	supersedesInput.parentNode.appendChild(supersedesYear);
 
-	document.querySelectorAll("[name=DraftAvailableElectronically]")[0].checked = true;
+	projectIntent.value = "7";
 
-	var pubRevTable = document.querySelector("body > table:nth-child(2) > tbody > tr:nth-child(2) > td > form > table > tbody > tr > td > table:nth-child(7)");
+	document.querySelector("[name=DraftAvailableElectronically]").checked = true;
+
 	pubRevTable.className = "table table-condensed";
 
 	for(var i=1; i<pubRevTable.rows.length; i++) {
@@ -42,15 +44,72 @@ function formatNewBSR8() {
 		pubRevTable.rows[i].children[1].className = "form-inline";
 	}
 
-	changeCSSofAll("th", {
+	overlay.changeCSSofAll("th", {
 		"font-size":""
 	});
 
 	var checkSpan = document.createElement("span");
-	checkSpan.className = "btn btn-primary btn-xs";
-	checkSpan.innerText = "Check Inputs";
+			checkSpan.className = "btn btn-primary btn-xs";
+			checkSpan.innerText = "Check Inputs";
+			checkSpan.addEventListener("click", checkErrors);
 
-	checkSpan.addEventListener("click", function() {
+	submitButton.parentNode.replaceChild(checkSpan, submitButton);
+
+	var titles = chrome.extension.getURL("functions/titles.json");
+
+	$.ajax({url: titles, success: function(res) {
+			window.results = eval(res);
+			var datalist = document.createElement("datalist");
+			datalist.id = "standard_titles";
+
+			for(var i=0; i<results.length; i++) {
+				var option = document.createElement("option");
+				option.innerText = results[i].standard;
+				datalist.appendChild(option);
+			}
+			document.body.appendChild(datalist);
+
+			supersedesDes.addEventListener("change", function() {
+				var des = supersedesDes.value;
+				if(des.length > 0) {
+					for(var i=0; i<window.results.length; i++) {
+						if(results[i].standard == des) {
+							titleInput.value = results[i].title;
+							break;
+						}
+					}
+				} else {
+					titleInput.value = "";
+				}
+				supersedesInput.value = des;
+				if(supersedesYear.value.length > 0) {
+					supersedesInput.value += " - " + supersedesYear.value;
+				}
+			});
+
+			supersedesYear.addEventListener("change", function() {
+				var des = supersedesDes.value;
+				supersedesInput.value = des;
+				if(supersedesYear.value.length > 0) {
+					supersedesInput.value += " - " + supersedesYear.value;
+				}
+			});
+		}
+	});
+
+	overlay.changeCSSofAll("select, input[type=text], input[type=number], textarea", {
+		"background-color":inpColor,
+		"border": "1px solid "+ inpBorderColor,
+		"color": inptxtColor
+	});
+	if(threed) {
+		overlay.changeCSSofAll("select, input[type=text], input[type=number], textarea", {
+			"boxShadow":"0 2px 5px 0 " + inpBorderColor
+		});
+	}
+
+	function checkErrors() {
+
 		var errorMessage = [];
 		var errors = 0;
 
@@ -128,60 +187,6 @@ function formatNewBSR8() {
 
 		errorMsg.appendChild(h3);
 		errorMsg.appendChild(ul);
-	});
-
-	submitButton.parentNode.replaceChild(checkSpan, submitButton);
-
-	var titles = chrome.extension.getURL("functions/titles.json");
-
-	$.ajax({url: titles, success: function(res) {
-			window.results = eval(res);
-			var datalist = document.createElement("datalist");
-			datalist.id = "standard_titles";
-
-			for(var i=0; i<results.length; i++) {
-				var option = document.createElement("option");
-				option.innerText = results[i].standard;
-				datalist.appendChild(option);
-			}
-			document.body.appendChild(datalist);
-
-			supersedesDes.addEventListener("change", function() {
-				var des = supersedesDes.value;
-				if(des.length > 0) {
-					for(var i=0; i<window.results.length; i++) {
-						if(results[i].standard == des) {
-							titleInput.value = results[i].title;
-							break;
-						}
-					}
-				} else {
-					titleInput.value = "";
-				}
-				supersedesInput.value = des;
-				if(supersedesYear.value.length > 0) {
-					supersedesInput.value += " - " + supersedesYear.value;
-				}
-			});
-
-			supersedesYear.addEventListener("change", function() {
-				var des = supersedesDes.value;
-				supersedesInput.value = des;
-				if(supersedesYear.value.length > 0) {
-					supersedesInput.value += " - " + supersedesYear.value;
-				}
-			});
-		}
-	});
-
-	changeCSSofAll("select, input[type=text], input[type=number], textarea", {
-		"background-color":inpColor,
-		"border": "1px solid "+ inpBorderColor,
-		"color": inptxtColor
-	});
-	if(threed) {
-		changeCSSofAll("select, input[type=text], input[type=number], textarea", {
-			"boxShadow":"0 2px 5px 0 " + inpBorderColor
-		});
+	
 	}
 }

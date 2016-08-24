@@ -1,3 +1,4 @@
+// This should be the only global variable
 var thColor = "rgb(235, 243, 249)";
 var borderColor = "#d8e7f3";
 var inptxtColor = "#000000";
@@ -5,6 +6,10 @@ inpBorderColor:"#f2f2f2"
 var threed = false;
 
 (function() {
+  window.overlay = {};
+  overlay.set = function(attrName, attrVal) {
+    overlay[attrName] = attrVal;
+  };
   chrome.storage.sync.get({
     "accessEnabled":false
   }, function(a) {
@@ -14,7 +19,7 @@ var threed = false;
     {
       chrome.storage.sync.get({
         backgroundColor:"rgb(235, 243, 249)", 
-        // borderColor:"rgb(195, 218, 238)",
+        borderColor:"rgb(195, 218, 238)",
         borderColor:"#d8e7f3",
         inpBorderColor:"gray",
         inpColor:"white",
@@ -28,20 +33,45 @@ var threed = false;
         inptxtColor = item.inptxtColor; 
         inpBorderColor = item.inpBorderColor; 
         threed = item.threed; 
-        generalCSSChanges();
+        overlay.generalCSSChanges();
       });
       if(window.location.href.search("index.cfm") != -1 || document.querySelectorAll("[name=SearchCommitteePages]")[1] ||
         window.location.href.search("vcc.cfm") != -1 || window.location.href.search("reports.cfm") != -1 || 
         window.location.href.search("News.cfm") != -1) {
-        replaceNavBar();
+        overlay.replaceNavBar();
       }
     }
   });
-})();
 
 
 
 
+overlay
+  .set("doToAll", doToAll);
+overlay
+  .set("changeCSSofAll", changeCSSofAll);
+overlay
+  .set("formatViewComponentBallot", formatViewComponentBallot);
+overlay
+  .set("formatViewMemberBallot", formatViewMemberBallot);
+overlay
+  .set("formatViewEntireDocumentRecord", formatViewEntireDocumentRecord);
+overlay
+  .set("formatNewComponentRecord", formatNewComponentRecord);
+overlay
+  .set("formatAdvancedRecordSearch", formatAdvancedRecordSearch);
+overlay
+  .set("formatNewEntireDocumentRecord", formatNewEntireDocumentRecord);
+overlay
+  .set("formatSearch", formatSearch);
+overlay
+  .set("formatStaff", formatStaff);
+overlay
+  .set("formatAS11", formatAS11);
+overlay
+  .set("formatVCC", formatVCC);
+overlay
+  .set("formatSearchBallots", formatSearchBallots);
 
 
 
@@ -50,15 +80,14 @@ var threed = false;
 
 // Changes attributes of all elements with a specified attribute
 function doToAll(selector, obj) {
-
   var tmp = document.querySelectorAll(selector);
   for(key in obj) {
     for(var i=tmp.length-1;i>-1;i--){
       tmp[i].setAttribute(key,obj[key]);
       if(obj[key] == "remove") tmp[i].removeAttribute(key);
+      if(key == "parent" && obj[key] == "removeFrom") tmp[i].parentElement.removeChild(tmp[i]);
     }
   }
-
 }
 
 
@@ -88,6 +117,7 @@ function changeCSSofAll(selector, obj) {
 
 
 function formatViewComponentBallot() {
+  makePageSmall();
 
   var record = document.querySelectorAll("#BallotInfo > tbody > tr:nth-child(2) > td:nth-child(1)")[1].innerText;
   setTimeout(function() {
@@ -121,6 +151,7 @@ function formatViewComponentBallot() {
 
 
 function formatViewMemberBallot() {
+  makePageSmall();
 
   var record = document.querySelector("#BallotInfo > tbody > tr:nth-child(2) > td:nth-child(1)").innerText;
   document.body.onload = function() {
@@ -175,7 +206,8 @@ if (maximumNumberOfValues == null || ObjectName.length < maximumNumberOfValues)
 
 
 function formatNewComponentRecord() {
-
+  makePageSmall();
+  
   var subType = document.querySelector("select");
   var str = document.getElementById("CommitteeResponsibleField").value;
   var boardSelect = document.querySelector("select[name=Committee]");
@@ -211,22 +243,11 @@ function formatNewComponentRecord() {
   );
 }
 
-function insertScript(actualCode) {
-
-  var script = document.createElement('script');
-  script.textContent = actualCode;
-  (document.head||document.documentElement).appendChild(script);
-  script.parentNode.removeChild(script);
-
-}
 
 
 
-function onlyUnique(value, index, self) {
 
-  return self.indexOf(value) === index;
 
-}
 
 function countComments(unique, commentArray) {
 
@@ -240,22 +261,6 @@ function countComments(unique, commentArray) {
 
 }
 
-function dateInput(numDays) {
-
-  if(!numDays) numDays = 0;
-  var day = new Date();
-  var dat = new Date(day.valueOf());
-    var addedDays = new Date(dat.setDate(dat.getDate() + numDays));
-    
-    var dd = "" + addedDays.getDate();
-    var mm = addedDays.getMonth()+1;
-
-    if(dd < 10) dd = "0" + addedDays.getDate();
-    if(mm < 10) mm = "0" + (addedDays.getMonth() + 1);
-
-    return(mm + "/" + dd + "/" + addedDays.getFullYear());
-
-}
 
 
 
@@ -263,19 +268,8 @@ function dateInput(numDays) {
 
 
 
-function addCSS(element, cssObj) {
 
-  if(typeof element == "string") {
-    element = document.querySelector(element);
-  }
 
-  if(cssObj) {
-    for(key in cssObj) {
-      element.style[key] = cssObj[key];
-    }
-  }
-
-}
 
 
 
@@ -468,16 +462,23 @@ function formatSearchBallots() {
 
   var str = window.location.href;
   if(str.search("Ballot=") == -1) return;
+  if(document.querySelector("[type=Button]")) {
+    doTheRest();
+  } else {
+    setTimeout(doTheRest,500);
+  }
 
-  var str = document.querySelector("[type=Button]").onclick.toString();
-  var ballotnum = str.substring(str.lastIndexOf("BallotNumber")+13,str.lastIndexOf("&BallotYearOpened"));
-  var yearnum = str.substring(str.lastIndexOf("YearOpened=")+11,str.lastIndexOf("&NoToolbar"));
-  
-  window.open("https://cstools.asme.org/csconnect/NewBallotForm.cfm?check=no&BallotNumber="+ballotnum+"&BallotYearOpened="+yearnum+"&NoToolbar=yes");
-  setTimeout(function() {
-    window.close();
-  }, 10);
+  function doTheRest() {
+    var str = document.querySelector("[type=Button]").getAttribute("onclick");
+    var ballotnum = str.substring(str.lastIndexOf("BallotNumber")+13,str.lastIndexOf("&BallotYearOpened"));
+    var yearnum = str.substring(str.lastIndexOf("YearOpened=")+11,str.lastIndexOf("&NoToolbar"));
+    
+    window.open("https://cstools.asme.org/csconnect/NewBallotForm.cfm?check=no&BallotNumber="+ballotnum+"&BallotYearOpened="+yearnum+"&NoToolbar=yes");
+    setTimeout(function() {
+      window.close();
+    }, 10);
 
+  }
 }
 
 
@@ -504,6 +505,35 @@ function formatViewEntireDocumentRecord() {
   
 }
 
+
+
+
+
+function showStat(stat, txt) {
+  votingResultsArea.value += members[member][stat][0] + " " + txt + " ";
+  if(parseInt(members[member][stat][0]) > 0) votingResultsArea.value += "(" + members[member][stat][1] + ")";
+  votingResultsArea.value += "\n";
+}
+
+})();
+
+function dateInput(numDays) {
+
+  if(!numDays) numDays = 0;
+  var day = new Date();
+  var dat = new Date(day.valueOf());
+    var addedDays = new Date(dat.setDate(dat.getDate() + numDays));
+    
+    var dd = "" + addedDays.getDate();
+    var mm = addedDays.getMonth()+1;
+
+    if(dd < 10) dd = "0" + addedDays.getDate();
+    if(mm < 10) mm = "0" + (addedDays.getMonth() + 1);
+
+    return(mm + "/" + dd + "/" + addedDays.getFullYear());
+
+}
+
 function makePageSmall() {
 
   document.body.style.backgroundColor = "#f2f2f2";
@@ -512,4 +542,55 @@ function makePageSmall() {
   largestTable.style.backgroundColor = "#ffffff";
   largestTable.style.boxShadow = "0px 0px 8px";
   
+}
+
+function onlyUnique(value, index, self) {
+
+  return self.indexOf(value) === index;
+
+}
+
+function addCSS(element, cssObj) {
+
+  if(typeof element == "string") {
+    element = document.querySelector(element);
+  }
+
+  if(cssObj) {
+    for(key in cssObj) {
+      element.style[key] = cssObj[key];
+    }
+  }
+
+}
+
+function appendShortList(target) {
+  chrome.storage.sync.get({committees:[]}, function(item) {
+    
+    var thisCommittee = document.getElementById("thisCommitteeResponsible");
+    target.firstElementChild.innerText = "----------------------------------";
+    target.firstElementChild.setAttribute("disabled",true);
+    for(var j=item.committees.length-1; j>-1; j--) {
+      var option = document.createElement("option");
+      var indent = ""
+      if(item.committees[j].indent) indent = "&nbsp; &nbsp; - ";
+      option.value = item.committees[j].num;
+      option.innerHTML = indent + item.committees[j].committee;
+      $(target).prepend(option);
+      if(thisCommittee) thisCommittee.value = item.committees[j].num;
+    }
+    target.firstElementChild.selected = true;
+    var option = document.createElement("option");
+      option.innerText = "Select Committee:";
+    $(target).prepend(option);
+  });
+}
+
+function insertScript(actualCode) {
+
+  var script = document.createElement('script');
+  script.textContent = actualCode;
+  (document.head||document.documentElement).appendChild(script);
+  script.parentNode.removeChild(script);
+
 }

@@ -23,9 +23,11 @@
       "matches": ["https://cstools.asme.org/csconnect/*"],
       "css":["bootstrap.css"],
       "js": [
+        "angular.min.js",
         "jquery.js",
         "jqueryUI.js",
         "constructors.js",
+        "script.js",
         "functions/pageIdentification.js",
         "functions/formatRecordSearchResults.js",
         "functions/formatOpenBallots.js",
@@ -47,7 +49,7 @@
         "functions/replaceNavBar.js",
         "functions/formatNewBSR8.js",
         "options/js/committeesList.js",
-        "script.js"
+        "showOverlay.js"
       ],
       "json": [
         "functions/titles.json"
