@@ -6,13 +6,13 @@
     .module("app")
     .controller("optionsCtrl", function($scope) {
       $scope.links = [
-        {title:"Committee Short List", href:"/shortlist", width:2, clss:""},
-        {title:"Committee Groups", href:"/committeegroups", width:2, clss:""},
-        {title:"Style Options", href:"/styleoptions", width:2, clss:""},
-        {title:"User Info", href:"/userinfo", width:2, clss:""},
-        {title:"Summary of Modifications", href:"/summaryofmodifications", width:2, clss:""},
-        {title:"Parse Minutes for Actions & Motions", href:"/parseminutes", width:4, clss:""},
-        {title:"Manage Memory", href:"/memory", width:4, clss:""}
+        {title:"Committee Short List", href:"#/shortlist", width:2, clss:""},
+        {title:"Committee Groups", href:"#/committeegroups", width:2, clss:""},
+        {title:"Style Options", href:"#/styleoptions", width:2, clss:""},
+        {title:"User Info", href:"#/userinfo", width:2, clss:""},
+        {title:"Summary of Modifications", href:"#/summaryofmodifications", width:2, clss:""},
+        {title:"Parse Minutes for Actions & Motions", href:"#/parseminutes", width:4, clss:""},
+        {title:"Meeting Documents", href:"#/meetingdocs"}
       ];
 
       $scope.setActive = function(lnk) {
@@ -63,6 +63,9 @@
         controller:"memoryCtrl",
         templateUrl: "templates/memory.html"
       });
+      $routeProvider.when("/meetingdocs", {
+        templateUrl: "templates/meetingdocs.html"
+      });
       $routeProvider.otherwise({redirectTo : '/shortlist'});
       $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|chrome-extension):/);
     });
@@ -70,4 +73,8 @@
   String.prototype.capitalizeFirstLetter = function() {
       return this.charAt(0).toUpperCase() + this.slice(1);
   }
+
+  document.getElementById("extensionsLink").addEventListener("click",function(){
+    chrome.tabs.create({url:'chrome://extensions'});
+  });
 })();

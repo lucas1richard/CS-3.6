@@ -22,7 +22,7 @@
 
 				<input ng-model="newCommittee[$index]" class="form-control" placeholder="Add New Committee" />
 				<ul ng-if="newCommittee[$index]" class="drop-options">
-				    <li ng-repeat="c in allCommittees | filter : newCommittee[$index]" ng-click="complete(grp, c); newCommittee[$index] = ''">{{c.committee}}</li>
+				    <li ng-repeat="c in allCommittees | filter : newCommittee[$index] | orderBy:'committee'" ng-click="complete(grp, c); newCommittee[$index] = ''">{{c.committee}}</li>
 				</ul>
 				
 				<div class="list-group">

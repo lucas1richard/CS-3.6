@@ -44,6 +44,7 @@
     var staffEdits = document.querySelector("body > table:nth-child(2) > tbody > tr:nth-child(3) > td > table > tbody > tr > td:nth-child(1) > table > tbody > tr:nth-child(1) > td");
     var staffEditsTxt = ["Home","Modify","File Maintenance"];
     for(var i=0; i<staffEditsTxt.length; i++) {
+      if(!staffEdits.children[i]) continue;
       staffEdits.children[i].removeChild(staffEdits.children[i].children[0]);
       staffEdits.children[i].innerText = staffEditsTxt[i];
       staffEdits.children[i].className = "btn btn-default btn-xs";

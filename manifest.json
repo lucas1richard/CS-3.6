@@ -28,6 +28,7 @@
         "jqueryUI.js",
         "constructors.js",
         "script.js",
+        "functions/navCommitteePage.js",
         "functions/pageIdentification.js",
         "functions/formatRecordSearchResults.js",
         "functions/formatOpenBallots.js",
@@ -52,14 +53,16 @@
         "showOverlay.js"
       ],
       "json": [
-        "functions/titles.json"
+        "functions/titles.json",
+        "json/committees.json"
       ]
     }
   ],
   "web_accessible_resources":[
     "interps.footer.png",
     "options.html",
-    "functions/titles.json"
+    "functions/titles.json",
+    "json/committees.json"
   ],
   "browser_action": {
     "default_title": "Improve C&S Connect",

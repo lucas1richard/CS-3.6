@@ -22,7 +22,7 @@
         vm.numRows.push(i);
       }
 
-      return getJSON.getdata("../json/committees.json").then(function(r) {
+      return getJSON.getdata("../../json/committees.json").then(function(r) {
         vm.allCommittees = r.data;
         return vm.allCommittees;
       });
